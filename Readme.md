@@ -18,9 +18,10 @@ bowtie2 -p 8 -x hg19F -U SON_TSA-seq_pulldown.fastq | samtools view -bS - > SON_
 samtools sort SON_TSA-seq_pulldown.bam SON_TSA-seq_pulldown_sort
 # remove pcr duplicate from bam file
 # skip pcr duplication removal step if do not the step2 (map reads to spike-in reference)
-samtools rmdup SON_TSA-seq_pulldown_sort SON_TSA-seq_pulldown_rmdup.bam
+samtools rmdup SON_TSA-seq_pulldown_sort.bam SON_TSA-seq_pulldown_rmdup.bam
 # Index bam file
 samtools index SON_TSA-seq_pulldown_rmdup.bam
+#################################################################################
 # Do this to other three samples, in the end we should get four indexed bam files
 # SON_TSA-seq_pulldown_rmdup.bam
 # SON_TSA-seq_input_rmdup.bam
@@ -31,15 +32,16 @@ samtools index SON_TSA-seq_pulldown_rmdup.bam
 Depend on what kind of spike-in sequence is used, this step is either a required or optional. i) If the spike-in sequence can not be found in any place of human reference genome, fastq file should be mapped to spike-in sequence. ii) If the spike-in sequence can only be found in single position in human reference genome, this step is optional. iii) If the spike-in sequence (even only a small part of the whole sequence) can be mapped to multiple position in human reference genome, this step is optional but highly suggested to do.
 ```shell
 # If the bowtie index for spike-in does not exist, first build it
-bowtie-build spike-in.fastq spike-in
+bowtie-build spike-in.fasta spike-in
 # Use bowtie2 to map the reads and link with to get bam file
 bowtie2 -p 8 -x spike-in -U SON_TSA-seq_pulldown.fastq | samtools view -bS - > SON_TSA-seq_pulldown_spike-in.bam
 # Sort bam file
 samtools sort SON_TSA-seq_pulldown_spike-in.bam SON_TSA-seq_pulldown_spike-in_sort
-# do not remove pcr duplication for spike-in since many read will be mapped to the same position
+# Do not remove pcr duplication for spike-in since many reads will be mapped to the same position
 # Index bam file
 samtools index SON_TSA-seq_pulldown_spike-in_sort
-# Do this to No Primary Control pulldown sample, in the end we should get two indexed bam files
+###########################################################################################################
+# Do the same process to No Primary Control pulldown sample, in the end we should get two indexed bam files
 # SON_TSA-seq_pulldown_spike-in_sort
 # NoPrimaryCtrl_TSA-seq_pulldown_spike-in_sort
 
@@ -72,7 +74,7 @@ Ratio is 0.978156
 ```
 
 #### 4. Normalization
-Support the normalization factor we got is 8.334721, run the normalization with spike-ind correction like this. We can also correct the input bias by divid 8.334721/0.978156. 
+Suppose the normalization factor we got is 8.334721 as shown above (We can also correct the input bias by divid 8.334721 with 0.978156). run the normalization with spike-ind correction using the following script: We can also correct the input bias by divid 8.334721/0.978156. 
 ```shell
 python TSA-seq_normalize.py -r 100 -w 20000 -g genome/hg19/hg19F.genome -ep data/SON_TSA-seq/SON_TSA-seq_pulldown_rmdup.bam -cp data/SON_TSA-seq/SON_TSA-seq_input_rmdup.bam -en SON_TSA-seq/NoPrimary_TSA-seq_pulldown_rmdup.bam -cn SON_TSA-seq/NoPrimary_TSA-seq_input_rmdup.bam -R 8.334721 -o result/1118_normalize/SON_TSA-seq_Sucrose_Score --wig2bw sys
 ```
