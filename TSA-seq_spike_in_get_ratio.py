@@ -1,7 +1,7 @@
 #!/home/yzhan116/Software/Python-2.7.5/python-2.7.5
 # Programmer : zocean
 # Date: 
-# Last-modified: 24 Nov 2015 23:35:43
+# Last-modified: 19 May 2016 14:57:36
 
 import os,sys,argparse
 import pysam
@@ -35,8 +35,8 @@ def GetRatioSpike():
     print >>sys.stderr, "Total number of reads in control sample: %d" % (tot_control)
     spike_pulldown = pulldown.mapped
     spike_control = control.mapped
-    print >>sys.stderr, "Total number of reads mapped in spike-in region: %d" % (spike_pulldown)
-    print >>sys.stderr, "Total number of reads mapped in spike-in region: %d" % (spike_control)
+    print >>sys.stderr, "Total number of reads mapped in spike-in region: %d in pulldown sample" % (spike_pulldown)
+    print >>sys.stderr, "Total number of reads mapped in spike-in region: %d in control sample" % (spike_control)
     ratio = float(spike_control)/float(spike_pulldown)*float(tot_pulldown)/float(tot_control)
     print >>sys.stderr, "Ratio is %.6f" % (ratio)
     pulldown.close()

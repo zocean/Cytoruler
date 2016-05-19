@@ -13,7 +13,7 @@ As a preprocessing step, fasta files from TSA-seq should be first mapped to refe
 ```shell
 # Since K562 is derived from a female, we remove chromosome Y from human reference genome hg19 and named it hg19F
 # Use bowtie2 to map the reads and link with to get bam file
-# bowtie2 -p 8 -x hg19F -U SON_TSA-seq_pulldown.fastq | samtools view -bS - > SON_TSA-seq_pulldown.bam
+bowtie2 -p 8 -x hg19F -U SON_TSA-seq_pulldown.fastq | samtools view -bS - > SON_TSA-seq_pulldown.bam
 # Sort bam file
 samtools sort SON_TSA-seq_pulldown.bam SON_TSA-seq_pulldown_sort
 # remove pcr duplicate from bam file
@@ -21,6 +21,11 @@ samtools sort SON_TSA-seq_pulldown.bam SON_TSA-seq_pulldown_sort
 samtools rmdup SON_TSA-seq_pulldown_sort SON_TSA-seq_pulldown_rmdup.bam
 # Index bam file
 samtools index SON_TSA-seq_pulldown_rmdup.bam
+# Do this to other three samples, in the end we should get four indexed bam files
+# SON_TSA-seq_pulldown_rmdup.bam
+# SON_TSA-seq_input_rmdup.bam
+# NoPrimaryCtrl_TSA-seq_pulldown_rmdup.bam
+# NoPrimaryCtrl_TSA-seq_input_rmdup.bam
 ```
 #### 2. Map the reads to spike-in control sequence (Preprocessing)
 Depend on what kind of spike-in sequence is used, this step is either a required or optional. i) If the spike-in sequence can not be found in any place of human reference genome, fastq file should be mapped to spike-in sequence. ii) If the spike-in sequence can only be found in single position in human reference genome, this step is optional. iii) If the spike-in sequence (even only a small part of the whole sequence) can be mapped to multiple position in human reference genome, this step is optional but highly suggested to do.
@@ -32,7 +37,18 @@ samtools sort SON_TSA-seq_pulldown_spike-in.bam SON_TSA-seq_pulldown_spike-in_so
 # do not remove pcr duplication for spike-in since many read will be mapped to the same position
 # Index bam file
 samtools index SON_TSA-seq_pulldown_spike-in_sort
+# Do this to No Primary Control pulldown sample, in the end we should get two indexed bam files
+# SON_TSA-seq_pulldown_spike-in_sort
+# NoPrimaryCtrl_TSA-seq_pulldown_spike-in_sort
 
+```
+After the code finish, we may get:
+```shell
+Total number of reads in pulldown sample: 55315229
+Total number of reads in control sample: 37111025
+Total number of reads mapped in spike-in region: 4593
+Total number of reads mapped in spike-in region: 25683
+Ratio is 8.334721
 ```
 
 #### 3. Count spike-in read (Preprocessing)
@@ -44,9 +60,17 @@ You can also run the same code for input samples of primary antibody pulldown an
 ```shell
 python TSA-seq_spike_in_get_ratio.py --pulldown SON_TSA-seq_input_spike-in_sort --control NoPrimaryCtrl_TSA-seq_input_spike-in_sort -m spike 
 ```
+After the code finish, we may get:
+```shell
+Total number of reads in pulldown sample: 33106442
+Total number of reads in control sample: 30907385
+Total number of reads mapped in spike-in region in pulldown sample: 933
+Total number of reads mapped in spike-in region in control sample: 852
+Ratio is 0.978156
+```
 
 #### 4. Normalization
-Support the normalization factor we got is 8.334721, run the normalization with spike-ind correction like this.
+Support the normalization factor we got is 8.334721, run the normalization with spike-ind correction like this. We can also correct the input bias by divid 8.334721/0.978156. 
 ```shell
 python TSA-seq_normalize.py -r 100 -w 20000 -g genome/hg19/hg19F.genome -ep data/SON_TSA-seq/SON_TSA-seq_pulldown_rmdup.bam -cp data/SON_TSA-seq/SON_TSA-seq_input_rmdup.bam -en SON_TSA-seq/NoPrimary_TSA-seq_pulldown_rmdup.bam -cn SON_TSA-seq/NoPrimary_TSA-seq_input_rmdup.bam -R 8.334721 -o result/1118_normalize/SON_TSA-seq_Sucrose_Score --wig2bw sys
 ```
