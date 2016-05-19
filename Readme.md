@@ -74,7 +74,7 @@ Ratio is 0.978156
 ```
 
 #### 4. Normalization
-Suppose the normalization factor we got is 8.334721 as shown above (We can also correct the input bias by divid 8.334721 with 0.978156). run the normalization with spike-ind correction using the following script: We can also correct the input bias by divid 8.334721/0.978156. 
+Suppose the normalization factor we got is 8.334721 as shown above (We can also correct the input bias by divide 8.334721 with 0.978156, so use 8.520850). run the normalization with spike-in correction using the following script:
 ```shell
 python TSA-seq_normalize.py -r 100 -w 20000 -g genome/hg19/hg19F.genome -ep data/SON_TSA-seq/SON_TSA-seq_pulldown_rmdup.bam -cp data/SON_TSA-seq/SON_TSA-seq_input_rmdup.bam -en SON_TSA-seq/NoPrimary_TSA-seq_pulldown_rmdup.bam -cn SON_TSA-seq/NoPrimary_TSA-seq_input_rmdup.bam -R 8.334721 -o result/1118_normalize/SON_TSA-seq_Sucrose_Score --wig2bw sys
 ```
