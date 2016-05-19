@@ -30,8 +30,10 @@ samtools index SON_TSA-seq_pulldown_rmdup.bam
 #### 2. Map the reads to spike-in control sequence (Preprocessing)
 Depend on what kind of spike-in sequence is used, this step is either a required or optional. i) If the spike-in sequence can not be found in any place of human reference genome, fastq file should be mapped to spike-in sequence. ii) If the spike-in sequence can only be found in single position in human reference genome, this step is optional. iii) If the spike-in sequence (even only a small part of the whole sequence) can be mapped to multiple position in human reference genome, this step is optional but highly suggested to do.
 ```shell
+# If the bowtie index for spike-in does not exist, first build it
+bowtie-build spike-in.fastq spike-in
 # Use bowtie2 to map the reads and link with to get bam file
-# bowtie2 -p 8 -x spike-in -U SON_TSA-seq_pulldown.fastq | samtools view -bS - > SON_TSA-seq_pulldown_spike-in.bam
+bowtie2 -p 8 -x spike-in -U SON_TSA-seq_pulldown.fastq | samtools view -bS - > SON_TSA-seq_pulldown_spike-in.bam
 # Sort bam file
 samtools sort SON_TSA-seq_pulldown_spike-in.bam SON_TSA-seq_pulldown_spike-in_sort
 # do not remove pcr duplication for spike-in since many read will be mapped to the same position
